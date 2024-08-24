@@ -1,0 +1,41 @@
+﻿@using ManagementAssistanceForBusinessWeb_OnlyRole.Models
+@model ManagementAssistanceForBusinessWeb_OnlyRole.Models.ProjectViewModels.ProjectDTO;
+
+<!-- Modal -->
+<div class="modal fade" id="updateProjectModal" tabindex="-1" role="dialog" aria-labelledby="updateProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateProjectModalLabel">Update Project</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="updateProjectForm" asp-controller="Project" asp-action="UpdateProject" method="post">
+          <div class="form-group">
+            <label for="projectName">Project Name</label>
+            <input type="text" class="form-control" id="projectName" asp-for="Name" required>
+            <span asp-validation-for="Name" class="text-danger"></span>
+          </div>
+          <div class="form-group">
+            <label for="projectDescription">Project Description</label>
+            <textarea class="form-control" id="projectDescription" rows="3" asp-for="Description" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+          </div>
+           <div class="form-group">
+            <label for="projectStartTime">Start Time</label>
+            <input type="datetime-local" class="form-control" id="projectStartTime" asp-for="StartTime" required>
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+           </div>
+           <input type="hidden" id="projectIdInput" name="ID" asp-for="ID" />
+          <button type="submit" id="btnUpdate" class="btn btn-primary">Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial"/>
+}

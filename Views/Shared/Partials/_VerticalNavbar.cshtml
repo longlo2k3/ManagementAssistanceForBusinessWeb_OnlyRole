@@ -1,0 +1,156 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    // get userID and role from session
+    var userId = int.Parse(httpContextAccessor.HttpContext.Session.GetString("UserID"));
+    var role = httpContextAccessor.HttpContext.Session.GetString("Role");
+    // Get the string value from session and convert to boolean
+    var isLoggedInString = httpContextAccessor.HttpContext.Session.GetString("IsLoggedIn");
+    bool isLoggedIn = bool.TryParse(isLoggedInString, out bool result) ? result : false;
+}
+@* khai bao de lay user luu tronmg session *@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@* Modal *@
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">Confirm logout</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @httpContextAccessor.HttpContext.Session.GetString("Username"),  Certainly logout?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick ="hideLogoutModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmLogoutBtn" onclick= "confirmLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* _VerticalNavbar.cshtml *@
+<div class="vertical-navbar">
+  <div class="logo">
+    <img src="~/imgs/iconweb.jpg" alt="Logo" />
+  </div>
+  <ul class="menu">
+    <li class="dropdown">
+      <span href="#" class="icon-container">
+        <i class="icon icon-team"></i>
+      </span>
+      <div class="dropdown-content">
+        <span class="menu-title">Team Overview</span>
+        <a asp-controller="Project" asp-action="GetAllProject">Projects</a>
+        @if(role == "Admin") {
+                <a asp-controller="User" asp-action="GetAllUsers">User</a>
+        }               
+        else
+        {
+            <a style="display: none">User</a>
+            //<p> you don't have any permission to  see all of users</p>
+        }
+      </div>
+    </li>
+    @* <li class="dropdown">
+      <span href="#" class="icon-container">
+        <i class="icon icon-task"></i>
+      </span>
+      <div class="dropdown-content">
+        <span class="menu-title">Tasks</span>
+        <a href="#">All tasks</a>
+      </div>
+    </li>
+    <li class="dropdown">
+      <span href="#" class="icon-container">
+        <i class="icon icon-profile"></i>
+      </span>
+      <div class="dropdown-content">
+            <span class="menu-title">Profile</span>
+                <a asp-controller="User" asp-action="ProfileUser" asp-route-id="@userId">Profile detail</a>
+        
+      </div>
+    </li> *@
+    <li class="dropdown">
+      <span href="#" class="icon-container">
+        <i class="icon icon-authentication"></i>
+      </span>
+      <div class="dropdown-content">
+        <span class="menu-title">Authentication</span>
+        <a asp-controller="User" asp-action="LoginViewModel">Login</a>
+        <a asp-controller="User" asp-action="RegisterAccountForUser">Sign up</a>
+                @if(role == "Admin")
+                {
+                    <a asp-controller="User" asp-action="CreateAccountForAdmin">Create account for admin</a>
+                }
+                else
+                {
+                    <a style="display: none">Create account for admin</a>
+                }
+        <a href="#" onclick="showLogoutModal()">Sign out</a>
+      </div>
+    </li>
+    <li>
+      <a href="#" class="icon-container">
+        <i class="icon icon-settings"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+ <script>
+     // declare var
+       
+        function showLogoutModal() {
+            $.ajax({
+                type: "GET",
+                url: "/User/getUserNameSession",
+                success: function(username) {
+                    if(username) {
+                        $('#logoutModal').modal('show');
+                    }
+                    else {
+                        alert('You haven\'t login');
+                    }
+                },
+                error: function() {
+                    alert('Error retrieving session data');
+                }
+            });
+        }
+        function hideLogoutModal() {
+            $('#logoutModal').modal('hide');
+        }
+        function confirmLogout() {
+            fetch('/User/Logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if(!response.ok) {
+                throw new Error('Logout request failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // alert('Logout successful');
+                window.location.href = '/User/SecurePage';
+            })
+            .catch(error => {
+                 console.error('Logout Error:', error);
+            });
+        }
+        // function showLogoutModal() {
+        //     if (@httpContextAccessor.HttpContext.Session.GetString("Username") != null) {
+        //         $('#logoutModal').modal('show');
+        //     }
+        //     else {
+        //         alert('You haven\'t login');
+        //     }
+        // }
+  </script>
